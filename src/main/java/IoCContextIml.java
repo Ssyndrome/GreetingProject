@@ -3,9 +3,11 @@
 public class IoCContextIml implements IoCContext{
 
     private Class pointedBeanClazz;
+    private boolean haveGotBean = false;
 
     @Override
     public void registerBean(Class<?> beanClazz) {
+        if (haveGotBean) throw new IllegalStateException();
         if (beanClazz == null) throw new IllegalArgumentException("beanClazz is mandatory");
         try {
             beanClazz.newInstance();
@@ -23,6 +25,8 @@ public class IoCContextIml implements IoCContext{
     public <T> T getBean(Class<T> resolveClazz) {
         if (resolveClazz == null) throw new IllegalArgumentException();
         if (resolveClazz != pointedBeanClazz) throw new IllegalStateException();
+
+        haveGotBean = true;
 
         return null;
     }

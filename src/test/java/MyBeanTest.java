@@ -81,6 +81,18 @@ class MyBeanTest {
 
         assertThrows(Exception.class, () -> context.getBean(exceptionInResolvedClass.class));
     }
+
+    @Test
+    void should_throw_error_when_registerBean_after_getBean() {
+        IoCContext context = new IoCContextIml();
+        context.registerBean(MyBean.class);
+
+        Class expectedException = IllegalStateException.class;
+        assertThrows(expectedException, () -> {
+            context.getBean(exceptionInResolvedClass.class);
+            context.registerBean(exceptionInResolvedClass.class);
+        });
+    }
 }
 
 class noDefaultConstructorClass {
