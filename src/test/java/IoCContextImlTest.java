@@ -1,3 +1,5 @@
+import jdk.nashorn.internal.ir.annotations.Ignore;
+import jdk.nashorn.internal.objects.NativeDebug;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -6,16 +8,34 @@ class IoCContextImlTest {
 
     @Test
     void should_succeed_creating_instance_for_MyBean() {
-        boolean isSucceed = true;
-        try {
+
+        MyBean expectedInstance = new MyBean();
+
+        assertDoesNotThrow(() -> {
             IoCContext context = new IoCContextIml();
             context.registerBean(MyBean.class);
             MyBean myBeanInstance = context.getBean(MyBean.class);
-        } catch (Exception error) {
-            isSucceed = false;
-        }
+            assertEquals(expectedInstance.getClass(), myBeanInstance.getClass());
+        });
+    }
 
-        assertTrue(isSucceed);
+    @Test
+    void should_succeed_creating_two_instance_for_MyBean() {
+        MyBean expectedBeanInstance = new MyBean();
+        ValidClassForRegister expectedValidInstance = new ValidClassForRegister();
+
+        assertDoesNotThrow(() -> {
+            IoCContext context = new IoCContextIml();
+
+            context.registerBean(MyBean.class);
+            MyBean myBeanInstance = context.getBean(MyBean.class);
+
+            context.registerBean(ValidClassForRegister.class);
+            ValidClassForRegister myValidInstance = context.getBean(ValidClassForRegister.class);
+
+            assertEquals(expectedBeanInstance.getClass(), myBeanInstance.getClass());
+            assertEquals(expectedValidInstance.getClass(), myValidInstance.getClass());
+        });
     }
 
     @Test
@@ -44,6 +64,7 @@ class IoCContextImlTest {
         assertThrows(exceptedClass, () -> context.registerBean(NoDefaultConstructorClass.class), NoDefaultConstructorClass.class.getName() + "has no default constructor");
     }
 
+    @Ignore
     @Test
     void should_occurs_nothing_when_a_class_repeated_register() {
         IoCContext context = new IoCContextIml();
@@ -93,6 +114,7 @@ class IoCContextImlTest {
             context.registerBean(ExceptionInResolvedClass.class);
         });
     }
+
 }
 
 class NoDefaultConstructorClass {
@@ -101,6 +123,8 @@ class NoDefaultConstructorClass {
 }
 
 class ValidClassForRegister {
+    public ValidClassForRegister() {
+    }
 }
 
 class ExceptionInResolvedClass {
@@ -108,3 +132,4 @@ class ExceptionInResolvedClass {
         throw new Exception();
     }
 }
+

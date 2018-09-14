@@ -1,13 +1,13 @@
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class IoCContextIml implements IoCContext{
 
-    private Class pointedBeanClazz;
-    private boolean haveGotBean = false;
+    private List<Class> pointedBeanClazz = new ArrayList<>();
 
     @Override
     public void registerBean(Class<?> beanClazz) {
-        if (haveGotBean) throw new IllegalStateException();
+        if (pointedBeanClazz.contains(beanClazz)) throw new IllegalStateException();
         if (beanClazz == null) throw new IllegalArgumentException("beanClazz is mandatory");
         try {
             beanClazz.newInstance();
@@ -17,17 +17,15 @@ public class IoCContextIml implements IoCContext{
             throw new IllegalArgumentException(beanClazz.getName() + "has no default constructor");
         }
 
-        pointedBeanClazz = beanClazz;
+        pointedBeanClazz.add(beanClazz);
 
     }
 
     @Override
-    public <T> T getBean(Class<T> resolveClazz) {
+    public <T> T getBean(Class<T> resolveClazz) throws IllegalAccessException, InstantiationException {
         if (resolveClazz == null) throw new IllegalArgumentException();
-        if (resolveClazz != pointedBeanClazz) throw new IllegalStateException();
+        if (!pointedBeanClazz.contains(resolveClazz)) throw new IllegalStateException();
 
-        haveGotBean = true;
-
-        return null;
+        return resolveClazz.newInstance();
     }
 }
