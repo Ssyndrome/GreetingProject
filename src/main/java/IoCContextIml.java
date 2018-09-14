@@ -21,8 +21,14 @@ public class IoCContextIml implements IoCContext{
         } catch (Exception otherException) {
         }
 
-            pointedBeanClazz.add(beanClazz);
+        pointedBeanClazz.add(beanClazz);
 
+    }
+
+    @Override
+    public <T> void registerBean(Class<? super T> resolveClazz, Class<?> beanClazz) {
+        registerBean(resolveClazz);
+        registerBean(beanClazz);
     }
 
     @Override
