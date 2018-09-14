@@ -46,6 +46,16 @@ class MyBeanTest {
         assertThrows(exceptedClass, () -> context.registerBean(noConstructorClass.class));
     }
 
+    @Test
+    void should_occurs_nothing_when_a_class_repeated_register() {
+        IoCContext context = new IoCContextIml();
+        assertDoesNotThrow(() -> {
+            context.getBean(MyBean.class);
+            context.getBean(MyBean.class);
+        });
+    }
+
+
 }
 
 class noConstructorClass {
