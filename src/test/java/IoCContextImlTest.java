@@ -1,5 +1,3 @@
-import jdk.nashorn.internal.ir.annotations.Ignore;
-import jdk.nashorn.internal.objects.NativeDebug;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -7,35 +5,31 @@ import static org.junit.jupiter.api.Assertions.*;
 class IoCContextImlTest {
 
     @Test
-    void should_succeed_creating_instance_for_MyBean() {
+    void should_succeed_creating_instance_for_MyBean() throws InstantiationException, IllegalAccessException {
 
         MyBean expectedInstance = new MyBean();
 
-        assertDoesNotThrow(() -> {
-            IoCContext context = new IoCContextIml();
-            context.registerBean(MyBean.class);
-            MyBean myBeanInstance = context.getBean(MyBean.class);
-            assertEquals(expectedInstance.getClass(), myBeanInstance.getClass());
-        });
+        IoCContext context = new IoCContextIml();
+        context.registerBean(MyBean.class);
+        MyBean myBeanInstance = context.getBean(MyBean.class);
+        assertEquals(expectedInstance.getClass(), myBeanInstance.getClass());
     }
 
     @Test
-    void should_succeed_creating_two_instance_for_MyBean() {
+    void should_succeed_creating_two_instance_for_MyBean() throws InstantiationException, IllegalAccessException {
         MyBean expectedBeanInstance = new MyBean();
         ValidClassForRegister expectedValidInstance = new ValidClassForRegister();
 
-        assertDoesNotThrow(() -> {
-            IoCContext context = new IoCContextIml();
+        IoCContext context = new IoCContextIml();
 
-            context.registerBean(MyBean.class);
-            MyBean myBeanInstance = context.getBean(MyBean.class);
+        context.registerBean(MyBean.class);
+        context.registerBean(ValidClassForRegister.class);
 
-            context.registerBean(ValidClassForRegister.class);
-            ValidClassForRegister myValidInstance = context.getBean(ValidClassForRegister.class);
+        MyBean myBeanInstance = context.getBean(MyBean.class);
+        ValidClassForRegister myValidInstance = context.getBean(ValidClassForRegister.class);
 
-            assertEquals(expectedBeanInstance.getClass(), myBeanInstance.getClass());
-            assertEquals(expectedValidInstance.getClass(), myValidInstance.getClass());
-        });
+        assertEquals(expectedBeanInstance.getClass(), myBeanInstance.getClass());
+        assertEquals(expectedValidInstance.getClass(), myValidInstance.getClass());
     }
 
     @Test
@@ -76,17 +70,15 @@ class IoCContextImlTest {
         IoCContext context = new IoCContextIml();
         context.registerBean(MyBean.class);
 
-        assertNotEquals(context.getBean(MyBean.class), context.getBean(MyBean.class));
+        assertNotSame(context.getBean(MyBean.class), context.getBean(MyBean.class));
     }
 
     @Test
     void should_occurs_nothing_when_a_class_repeated_register() {
         IoCContext context = new IoCContextIml();
 
-        assertDoesNotThrow(() -> {
-            context.registerBean(MyBean.class);
-            context.registerBean(MyBean.class);
-        });
+        context.registerBean(MyBean.class);
+        context.registerBean(MyBean.class);
     }
 
     @Test
@@ -112,20 +104,27 @@ class IoCContextImlTest {
     @Test
     void should_continue_throwing_exception_or_error_when_these_occurs_during_getBean() {
         IoCContext context = new IoCContextIml();
-        context.registerBean(MyBean.class);
+        context.registerBean(ExceptionInResolvedClass.class);
 
-        assertThrows(Exception.class, () -> context.getBean(ExceptionInResolvedClass.class));
+        assertThrows(constructorException.class, () -> {
+            context.getBean(ExceptionInResolvedClass.class);
+        }, "Error constructor");
     }
 
     @Test
-    void should_throw_error_when_registerBean_after_getBean() {
+    void should_throw_error_when_registerBean_after_getBean() throws InstantiationException, IllegalAccessException {
         IoCContext context = new IoCContextIml();
         context.registerBean(MyBean.class);
+        context.getBean(MyBean.class);
 
         Class expectedException = IllegalStateException.class;
+
         assertThrows(expectedException, () -> {
-            context.getBean(ExceptionInResolvedClass.class);
-            context.registerBean(ExceptionInResolvedClass.class);
+            context.registerBean(MyBean.class);
+        });
+
+        assertThrows(expectedException, () -> {
+            context.registerBean(ValidClassForRegister.class);
         });
     }
 
@@ -143,7 +142,7 @@ class ValidClassForRegister {
 
 class ExceptionInResolvedClass {
     public ExceptionInResolvedClass() throws Exception{
-        throw new Exception();
+        throw new constructorException("Error constructor");
     }
 }
 
