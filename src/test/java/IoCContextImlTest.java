@@ -2,7 +2,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MyBeanTest {
+class IoCContextImlTest {
 
     @Test
     void should_succeed_creating_instance_for_MyBean() {
