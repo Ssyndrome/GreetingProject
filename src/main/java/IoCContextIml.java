@@ -22,7 +22,6 @@ public class IoCContextIml implements IoCContext{
     @Override
     public <T> T getBean(Class<T> resolveClazz) {
         if (resolveClazz == null) throw new IllegalArgumentException();
-
         if (resolveClazz != pointedBeanClazz) throw new IllegalStateException();
 
         return null;

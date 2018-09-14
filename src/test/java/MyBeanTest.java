@@ -73,6 +73,14 @@ class MyBeanTest {
 
         assertThrows(expectedException, () -> context.getBean(validClassForRegister.class));
     }
+
+    @Test
+    void should_continue_throwing_exception_or_error_when_these_occurs_during_getBean() {
+        IoCContext context = new IoCContextIml();
+        context.registerBean(MyBean.class);
+
+        assertThrows(Exception.class, () -> context.getBean(exceptionInResolvedClass.class));
+    }
 }
 
 class noDefaultConstructorClass {
@@ -81,4 +89,10 @@ class noDefaultConstructorClass {
 }
 
 class validClassForRegister {
+}
+
+class exceptionInResolvedClass {
+    public exceptionInResolvedClass() throws Exception{
+        throw new Exception();
+    }
 }
