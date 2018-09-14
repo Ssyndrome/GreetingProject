@@ -6,6 +6,8 @@ import java.util.Map;
 public class IoCContextIml implements IoCContext{
 
     private List<Class> pointedBeanClazz = new ArrayList<>();
+    private Map<Class, Class> relatedClazz = new HashMap<>();
+
     private boolean hasGot = false;
 
     @Override
@@ -27,18 +29,21 @@ public class IoCContextIml implements IoCContext{
 
     @Override
     public <T> void registerBean(Class<? super T> resolveClazz, Class<?> beanClazz) {
-        registerBean(resolveClazz);
         registerBean(beanClazz);
+        relatedClazz.put(resolveClazz, beanClazz);
     }
 
     @Override
     public <T> T getBean(Class<T> resolveClazz) throws IllegalAccessException, InstantiationException {
         if (resolveClazz == null) throw new IllegalArgumentException();
-        if (!pointedBeanClazz.contains(resolveClazz)) throw new IllegalStateException();
+        if (!(pointedBeanClazz.contains(resolveClazz) || relatedClazz.containsKey(resolveClazz))) throw new IllegalStateException();
 
-        pointedBeanClazz.add(resolveClazz);
         hasGot = true;
 
-        return resolveClazz.newInstance();
+        if (relatedClazz.containsKey(resolveClazz)) {
+            return (T) relatedClazz.get(resolveClazz).newInstance();
+        } else {
+            return (T) resolveClazz.newInstance();
+        }
     }
 }
