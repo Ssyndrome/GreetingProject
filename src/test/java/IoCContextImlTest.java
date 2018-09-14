@@ -64,14 +64,21 @@ class IoCContextImlTest {
         assertThrows(exceptedClass, () -> context.registerBean(NoDefaultConstructorClass.class), NoDefaultConstructorClass.class.getName() + "has no default constructor");
     }
 
+    @Test
+    void should_throw_exception_when_get_instance_without_register() {
+        IoCContext context = new IoCContextIml();
+
+        assertThrows(Exception.class, () -> context.getBean(MyBean.class));
+    }
+
     @Ignore
     @Test
     void should_occurs_nothing_when_a_class_repeated_register() {
         IoCContext context = new IoCContextIml();
 
         assertDoesNotThrow(() -> {
-            context.getBean(MyBean.class);
-            context.getBean(MyBean.class);
+            context.registerBean(MyBean.class);
+            context.registerBean(MyBean.class);
         });
     }
 
