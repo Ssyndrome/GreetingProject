@@ -41,7 +41,7 @@ class MyBeanTest {
         IoCContext context  = new IoCContextIml();
         Class exceptedClass = IllegalArgumentException.class;
 
-        assertThrows(exceptedClass, () -> context.registerBean(noDefaultConstructorClass.class), noDefaultConstructorClass.class.getName() + "has no default constructor");
+        assertThrows(exceptedClass, () -> context.registerBean(NoDefaultConstructorClass.class), NoDefaultConstructorClass.class.getName() + "has no default constructor");
     }
 
     @Test
@@ -71,7 +71,7 @@ class MyBeanTest {
 
         Class expectedException = IllegalStateException.class;
 
-        assertThrows(expectedException, () -> context.getBean(validClassForRegister.class));
+        assertThrows(expectedException, () -> context.getBean(ValidClassForRegister.class));
     }
 
     @Test
@@ -79,7 +79,7 @@ class MyBeanTest {
         IoCContext context = new IoCContextIml();
         context.registerBean(MyBean.class);
 
-        assertThrows(Exception.class, () -> context.getBean(exceptionInResolvedClass.class));
+        assertThrows(Exception.class, () -> context.getBean(ExceptionInResolvedClass.class));
     }
 
     @Test
@@ -89,22 +89,22 @@ class MyBeanTest {
 
         Class expectedException = IllegalStateException.class;
         assertThrows(expectedException, () -> {
-            context.getBean(exceptionInResolvedClass.class);
-            context.registerBean(exceptionInResolvedClass.class);
+            context.getBean(ExceptionInResolvedClass.class);
+            context.registerBean(ExceptionInResolvedClass.class);
         });
     }
 }
 
-class noDefaultConstructorClass {
-    public noDefaultConstructorClass(int thisIsArgument) {
+class NoDefaultConstructorClass {
+    public NoDefaultConstructorClass(int thisIsArgument) {
     }
 }
 
-class validClassForRegister {
+class ValidClassForRegister {
 }
 
-class exceptionInResolvedClass {
-    public exceptionInResolvedClass() throws Exception{
+class ExceptionInResolvedClass {
+    public ExceptionInResolvedClass() throws Exception{
         throw new Exception();
     }
 }
