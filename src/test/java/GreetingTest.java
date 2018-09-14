@@ -7,6 +7,6 @@ class GreetingTest {
     @Test
     void should_print_greet() {
         Greeting greetingFunction = new Greeting();
-        assertEquals("Hello World!", greetingFunction.greet());
+        assertEquals("Hello world!", greetingFunction.greet());
     }
 }
