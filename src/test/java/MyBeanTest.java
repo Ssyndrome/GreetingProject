@@ -38,5 +38,17 @@ class MyBeanTest {
         assertThrows(exceptedClass, () -> context.registerBean(IoCContext.class));
     }
 
+    @Test
+    void should_throw_exception_when_input_class_have_no_default_constructor() {
+        IoCContext context  = new IoCContextIml();
+        Class exceptedClass = IllegalArgumentException.class;
 
+        assertThrows(exceptedClass, () -> context.registerBean(noConstructorClass.class));
+    }
+
+}
+
+class noConstructorClass {
+    public noConstructorClass(int thisIsArgument) {
+    }
 }
