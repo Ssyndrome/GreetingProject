@@ -72,6 +72,14 @@ class IoCContextImlTest {
     }
 
     @Test
+    void should_get_two_different_instance() throws InstantiationException, IllegalAccessException {
+        IoCContext context = new IoCContextIml();
+        context.registerBean(MyBean.class);
+
+        assertNotEquals(context.getBean(MyBean.class), context.getBean(MyBean.class));
+    }
+
+    @Test
     void should_occurs_nothing_when_a_class_repeated_register() {
         IoCContext context = new IoCContextIml();
 
