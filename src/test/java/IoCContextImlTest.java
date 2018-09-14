@@ -71,7 +71,6 @@ class IoCContextImlTest {
         assertThrows(Exception.class, () -> context.getBean(MyBean.class));
     }
 
-    @Ignore
     @Test
     void should_occurs_nothing_when_a_class_repeated_register() {
         IoCContext context = new IoCContextIml();

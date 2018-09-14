@@ -7,7 +7,7 @@ public class IoCContextIml implements IoCContext{
 
     @Override
     public void registerBean(Class<?> beanClazz) {
-        if (pointedBeanClazz.contains(beanClazz)) throw new IllegalStateException();
+        if (pointedBeanClazz.contains(beanClazz)) {}
         if (beanClazz == null) throw new IllegalArgumentException("beanClazz is mandatory");
         try {
             beanClazz.newInstance();
