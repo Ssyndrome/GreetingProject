@@ -38,9 +38,15 @@ public class IoCContextIml implements IoCContext{
             returnedInstance = (T) resolveClazz.newInstance();
         }
 
+        getDependencyFieldInitialized(returnedInstance);
+        return returnedInstance;
+    }
+
+    private <T> void getDependencyFieldInitialized(T returnedInstance) {
         Arrays.stream(returnedInstance.getClass().getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(CreateOnTheFly.class))
                 .forEach(field -> {
+                    if (!registeredBeanClazz.contains(field.getType())) throw new IllegalStateException();
                     try {
                         field.setAccessible(true);
                         field.set(returnedInstance, field.getType().newInstance());
@@ -48,7 +54,6 @@ public class IoCContextIml implements IoCContext{
                         e.printStackTrace();
                     }
                 });
-        return returnedInstance;
     }
 
     private void isValidBeanClazz(Class<?> beanClazz) {
