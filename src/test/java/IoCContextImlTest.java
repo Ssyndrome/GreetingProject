@@ -38,7 +38,8 @@ class IoCContextImlTest {
 
         Class exceptedClass = IllegalArgumentException.class;
 
-        assertThrows(exceptedClass, () -> context.registerBean(null), "beanClazz is mandatory");
+        Throwable actualThrowable = assertThrows(exceptedClass, () -> context.registerBean(null));
+        assertEquals("beanClazz is mandatory", actualThrowable.getMessage());
     }
 
     @Test
@@ -47,7 +48,8 @@ class IoCContextImlTest {
 
         Class exceptedClass = IllegalArgumentException.class;
 
-        assertThrows(exceptedClass, () -> context.registerBean(IoCContext.class), IoCContext.class.getName() + " is abstract");
+        Throwable actualThrowable = assertThrows(exceptedClass, () -> context.registerBean(IoCContext.class));
+        assertEquals(IoCContext.class.getName() + " is abstract", actualThrowable.getMessage());
     }
 
     @Test
@@ -55,7 +57,10 @@ class IoCContextImlTest {
         IoCContext context  = new IoCContextIml();
         Class exceptedClass = IllegalArgumentException.class;
 
-        assertThrows(exceptedClass, () -> context.registerBean(NoDefaultConstructorClass.class), NoDefaultConstructorClass.class.getName() + "has no default constructor");
+        int[] array = new int[]{};
+
+        Throwable actualThrowable = assertThrows(exceptedClass, () -> context.registerBean(NoDefaultConstructorClass.class));
+        assertEquals(NoDefaultConstructorClass.class.getName() + " has no default constructor", actualThrowable.getMessage());
     }
 
     @Test
@@ -106,9 +111,11 @@ class IoCContextImlTest {
         IoCContext context = new IoCContextIml();
         context.registerBean(ExceptionInResolvedClass.class);
 
-        assertThrows(constructorException.class, () -> {
+        constructorException constructorException = assertThrows(constructorException.class, () -> {
             context.getBean(ExceptionInResolvedClass.class);
-        }, "Error constructor");
+        });
+
+        assertEquals("Error constructor", constructorException.getMessage());
     }
 
     @Test

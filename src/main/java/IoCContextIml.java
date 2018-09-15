@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class IoCContextIml implements IoCContext{
 
@@ -13,15 +10,15 @@ public class IoCContextIml implements IoCContext{
     @Override
     public void registerBean(Class<?> beanClazz) {
         if (hasGot) throw new IllegalStateException();
+
         if (beanClazz == null) throw new IllegalArgumentException("beanClazz is mandatory");
-        try {
-            beanClazz.newInstance();
-        } catch (InstantiationException exception) {
+        if (beanClazz.getConstructors().length == 0) {
             throw new IllegalArgumentException(beanClazz.getName() + " is abstract");
-        } catch (IllegalAccessException exception) {
-            throw new IllegalArgumentException(beanClazz.getName() + "has no default constructor");
-        } catch (Exception otherException) {
         }
+        if (Arrays.stream(beanClazz.getConstructors()).noneMatch(constructor -> constructor.getParameterTypes().length == 0)) {
+            throw new IllegalArgumentException(beanClazz.getName() + " has no default constructor");
+        }
+
 
         pointedBeanClazz.add(beanClazz);
 
@@ -30,6 +27,9 @@ public class IoCContextIml implements IoCContext{
     @Override
     public <T> void registerBean(Class<? super T> resolveClazz, Class<?> beanClazz) {
         registerBean(beanClazz);
+
+        if (resolveClazz == null) throw new IllegalArgumentException("resolveClazz is mandatory");
+
         relatedClazz.put(resolveClazz, beanClazz);
     }
 
