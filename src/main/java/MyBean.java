@@ -1,6 +1,5 @@
-class MyBean {
-    public MyBean() {
-    }
+public class MyBean {
+
 
     @CreateOnTheFly
     private MyDependency dependency;
