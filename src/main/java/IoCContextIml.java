@@ -40,10 +40,23 @@ public class IoCContextIml implements IoCContext{
 
         hasGot = true;
 
+        T returnedInstance;
         if (relatedClazz.containsKey(resolveClazz)) {
-            return (T) relatedClazz.get(resolveClazz).newInstance();
+            returnedInstance = (T) relatedClazz.get(resolveClazz).newInstance();
         } else {
-            return (T) resolveClazz.newInstance();
+            returnedInstance = (T) resolveClazz.newInstance();
         }
+
+        Arrays.stream(returnedInstance.getClass().getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(CreateOnTheFly.class))
+                .forEach(field -> {
+                    try {
+                        field.setAccessible(true);
+                        field.set(returnedInstance, field.getType().newInstance());
+                    } catch (IllegalAccessException | InstantiationException e) {
+                        e.printStackTrace();
+                    }
+                });
+        return returnedInstance;
     }
 }
