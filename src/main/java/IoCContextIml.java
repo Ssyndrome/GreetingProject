@@ -1,3 +1,5 @@
+import sun.jvm.hotspot.runtime.ConstructionException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -31,7 +33,7 @@ public class IoCContextIml implements IoCContext{
     @Override
     public <T> T getBean(Class<T> resolveClazz) throws IllegalAccessException, InstantiationException {
         if (resolveClazz == null) throw new IllegalArgumentException();
-        if (!(registeredBeanClazz.contains(resolveClazz) || baseRelatedClazz.containsKey(resolveClazz))) throw new IllegalStateException();
+        if (!(registeredBeanClazz.contains(resolveClazz) || baseRelatedClazz.containsKey(resolveClazz) || baseRelatedClazz.containsValue(resolveClazz))) throw new IllegalStateException();
 
         hasGot = true;
 
@@ -51,16 +53,18 @@ public class IoCContextIml implements IoCContext{
 
     @Override
     public void close() {
+        List<Throwable> exceptions = new ArrayList<>();
         Collections.reverse(gotClazz);
-        gotClazz.forEach(clazz -> {
-            if (Arrays.stream(clazz.getClass().getInterfaces()).anyMatch(derivedInterface -> derivedInterface == AutoCloseable.class)) {
-                try {
-                    clazz.getClass().getDeclaredMethod("close").invoke(clazz);
-                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                    e.printStackTrace();
+            gotClazz.forEach(clazz -> {
+                if (Arrays.stream(clazz.getClass().getInterfaces()).anyMatch(derivedInterface -> derivedInterface == AutoCloseable.class)) {
+                    try {
+                        clazz.getClass().getDeclaredMethod("close").invoke(clazz);
+                    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                        exceptions.add(e);
+                    }
                 }
-            }
-        });
+            });
+            if (exceptions.size() != 0) exceptions.get(0).printStackTrace();
     }
 
     private <T> void getDependencyFieldInitialized(T returnedInstance) {

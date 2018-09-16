@@ -1,6 +1,8 @@
 import org.junit.jupiter.api.Test;
+import sun.jvm.hotspot.runtime.ConstructionException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,5 +18,14 @@ class FieldLifeCircleTest {
         myIsClosed.setAccessible(true);
 
         assertTrue((boolean)myIsClosed.get(myBeanInstance));
+    }
+
+    @Test
+    void should_throw_exception_after_all_instance_closed() {
+        IoCContext context = new IoCContextIml();
+        context.registerBean(ExceptionInCloseClass.class);
+
+        ConstructionException exception = assertThrows(ConstructionException.class, () -> context.getBean(ExceptionInCloseClass.class));
+        assertEquals("Close error", exception.getMessage());
     }
 }
