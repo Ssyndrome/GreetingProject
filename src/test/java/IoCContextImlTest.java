@@ -11,6 +11,7 @@ class IoCContextImlTest {
 
         IoCContext context = new IoCContextIml();
         context.registerBean(MyBean.class);
+        context.registerBean(MyDependency.class);
         MyBean myBeanInstance = context.getBean(MyBean.class);
         assertEquals(expectedInstance.getClass(), myBeanInstance.getClass());
     }
@@ -23,6 +24,8 @@ class IoCContextImlTest {
         IoCContext context = new IoCContextIml();
 
         context.registerBean(MyBean.class);
+        context.registerBean(MyDependency.class);
+
         context.registerBean(ValidClassForRegister.class);
 
         MyBean myBeanInstance = context.getBean(MyBean.class);
@@ -74,6 +77,7 @@ class IoCContextImlTest {
     void should_get_two_different_instance() throws InstantiationException, IllegalAccessException {
         IoCContext context = new IoCContextIml();
         context.registerBean(MyBean.class);
+        context.registerBean(MyDependency.class);
 
         assertNotSame(context.getBean(MyBean.class), context.getBean(MyBean.class));
     }
@@ -122,6 +126,7 @@ class IoCContextImlTest {
     void should_throw_error_when_registerBean_after_getBean() throws InstantiationException, IllegalAccessException {
         IoCContext context = new IoCContextIml();
         context.registerBean(MyBean.class);
+        context.registerBean(MyDependency.class);
         context.getBean(MyBean.class);
 
         Class expectedException = IllegalStateException.class;

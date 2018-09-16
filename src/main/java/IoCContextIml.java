@@ -1,3 +1,4 @@
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class IoCContextIml implements IoCContext{
@@ -43,7 +44,7 @@ public class IoCContextIml implements IoCContext{
     }
 
     private <T> void getDependencyFieldInitialized(T returnedInstance) {
-        Arrays.stream(returnedInstance.getClass().getDeclaredFields())
+        getAllFields(new ArrayList<>(), returnedInstance.getClass()).stream()
                 .filter(field -> field.isAnnotationPresent(CreateOnTheFly.class))
                 .forEach(field -> {
                     if (!registeredBeanClazz.contains(field.getType())) throw new IllegalStateException();
@@ -54,6 +55,16 @@ public class IoCContextIml implements IoCContext{
                         e.printStackTrace();
                     }
                 });
+    }
+
+    private List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+
+        if (type.getSuperclass() != null) {
+            getAllFields(fields, type.getSuperclass());
+        }
+
+        return fields;
     }
 
     private void isValidBeanClazz(Class<?> beanClazz) {
