@@ -47,7 +47,7 @@ public class IoCContextIml implements IoCContext{
         gotClazz.add(returnedInstance);
         getDependencyFieldInitialized(returnedInstance);
 
-        close();
+//        close();
         return returnedInstance;
     }
 

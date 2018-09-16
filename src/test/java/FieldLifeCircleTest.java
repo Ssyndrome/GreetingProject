@@ -2,7 +2,6 @@ import org.junit.jupiter.api.Test;
 import sun.jvm.hotspot.runtime.ConstructionException;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,12 +11,20 @@ class FieldLifeCircleTest {
         IoCContext context = new IoCContextIml();
         context.registerBean(MyBean.class);
         context.registerBean(MyDependency.class);
-        Object myBeanInstance = context.getBean(MyBean.class);
 
-        Field myIsClosed = myBeanInstance.getClass().getDeclaredField("isClosed");
-        myIsClosed.setAccessible(true);
+        MyBean myBeanIntermediate = null;
+        try (MyBean myBeanInstance = context.getBean(MyBean.class)) {
+            Field myIsClosed = myBeanInstance.getClass().getDeclaredField("isClosed");
+            myIsClosed.setAccessible(true);
 
-        assertTrue((boolean)myIsClosed.get(myBeanInstance));
+            myBeanIntermediate = myBeanInstance;
+            assertFalse((boolean)myIsClosed.get(myBeanInstance));
+        } catch (Exception e) {
+            Field myIsClosed = myBeanIntermediate.getClass().getDeclaredField("isClosed");
+            myIsClosed.setAccessible(true);
+
+            assertFalse((boolean)myIsClosed.get(myBeanIntermediate));
+        }
     }
 
     @Test
