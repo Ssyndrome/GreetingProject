@@ -1,10 +1,12 @@
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class IoCContextIml implements IoCContext{
 
     private List<Class> registeredBeanClazz = new ArrayList<>();
     private Map<Class, Class> baseRelatedClazz = new HashMap<>();
+    private Set gotClazz = new HashSet<>();
 
     private boolean hasGot = false;
 
@@ -39,8 +41,24 @@ public class IoCContextIml implements IoCContext{
             returnedInstance = (T) resolveClazz.newInstance();
         }
 
+        gotClazz.add(returnedInstance);
         getDependencyFieldInitialized(returnedInstance);
+
+        close();
         return returnedInstance;
+    }
+
+    @Override
+    public void close() {
+        gotClazz.forEach(clazz -> {
+            if (Arrays.stream(clazz.getClass().getInterfaces()).anyMatch(derivedInterface -> derivedInterface == AutoCloseable.class)) {
+                try {
+                    clazz.getClass().getDeclaredMethod("close").invoke(clazz);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private <T> void getDependencyFieldInitialized(T returnedInstance) {
@@ -58,13 +76,14 @@ public class IoCContextIml implements IoCContext{
     }
 
     private List<Field> getAllFields(List<Field> fields, Class<?> type) {
-        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+        List<Field> sortedList = Arrays.asList(type.getDeclaredFields());
+        fields.addAll(fields);
 
         if (type.getSuperclass() != null) {
             getAllFields(fields, type.getSuperclass());
         }
 
-        return fields;
+        return sortedList;
     }
 
     private void isValidBeanClazz(Class<?> beanClazz) {
