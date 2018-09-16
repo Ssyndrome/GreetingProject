@@ -1,12 +1,13 @@
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class IoCContextIml implements IoCContext{
 
     private List<Class> registeredBeanClazz = new ArrayList<>();
     private Map<Class, Class> baseRelatedClazz = new HashMap<>();
-    private Set gotClazz = new HashSet<>();
+    private List gotClazz = new ArrayList();
 
     private boolean hasGot = false;
 
@@ -50,6 +51,7 @@ public class IoCContextIml implements IoCContext{
 
     @Override
     public void close() {
+        Collections.reverse(gotClazz);
         gotClazz.forEach(clazz -> {
             if (Arrays.stream(clazz.getClass().getInterfaces()).anyMatch(derivedInterface -> derivedInterface == AutoCloseable.class)) {
                 try {
